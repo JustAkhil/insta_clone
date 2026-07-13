@@ -3,28 +3,41 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:insta_clone/constants/app_routes.dart';
+import 'package:insta_clone/provider/user_provider.dart';
 import 'package:insta_clone/repository/auth_method.dart';
+import 'package:insta_clone/responsive/moile_screen_layout.dart';
+import 'package:insta_clone/responsive/responsive_layout_screen.dart';
+import 'package:insta_clone/responsive/web_screen_layout.dart';
 import 'package:insta_clone/utils/colors.dart';
+import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
-void main()async{
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => UserProvider())],
+      child: MyApp(),
+    ),
+  );
 }
-class MyApp extends StatelessWidget{
+
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: mobileBackgroundColor
+        scaffoldBackgroundColor: mobileBackgroundColor,
       ),
       debugShowCheckedModeBanner: false,
       initialRoute: isLogin(),
       routes: AppRoutes.appRoutes(),
     );
   }
+
   String isLogin() {
     final user = FirebaseAuth.instance.currentUser;
 
