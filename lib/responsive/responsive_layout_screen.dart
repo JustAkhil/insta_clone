@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:insta_clone/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../utils/dimension.dart';
+import '../utils/global_variable.dart';
 class ResponsiveLayoutScreen extends StatefulWidget {
   final Widget mobileScreenLayout;
   final Widget webScreenLayout;
@@ -25,8 +25,8 @@ class _ResponsiveLayoutScreenState extends State<ResponsiveLayoutScreen> {
     addData();
   }
 
-  addData(){
-    UserProvider _userProvider=context.read();
+  addData() {
+    UserProvider _userProvider = context.read<UserProvider>();
     _userProvider.refreshUser();
   }
   @override

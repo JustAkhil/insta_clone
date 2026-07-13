@@ -10,11 +10,15 @@ class AuthMethod {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<UserModel> getUserDetail() async {
-    User currUser = _auth.currentUser!;
-    DocumentSnapshot<Map<String,dynamic>> snap = await _firestore
-        .collection(USER_COLLECTION)
-        .doc(currUser.uid)
-        .get();
+    User? currUser = _auth.currentUser;
+    if (currUser == null) {
+      throw Exception("No user logged in");
+    }
+    DocumentSnapshot<Map<String, dynamic>> snap =
+        await _firestore.collection(USER_COLLECTION).doc(currUser.uid).get();
+    if (!snap.exists || snap.data() == null) {
+      throw Exception("User data not found in Firestore");
+    }
     return UserModel.fromMap(snap.data()!);
   }
   Future<String> signUpUser({
