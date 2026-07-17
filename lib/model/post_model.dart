@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class PostModel {
   final String description;
   final String uid;
@@ -37,7 +39,7 @@ class PostModel {
       uid: data['uid'] ?? '',
       username: data['username'] ?? '',
       postId: data['postId'] ?? '',
-      datePublished: data['datePublished'] ?? '',
+      datePublished: (data['datePublished'] as Timestamp).toDate(),
       postUrl: data['postUrl'] ?? [],
       profImage: data['profImage'] ?? [],
       likes: data['likes'] ?? 0,
