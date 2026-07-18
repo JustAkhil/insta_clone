@@ -52,56 +52,59 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
               onPageChanged: onPageChange,
               children: navPages,
             ),
-            bottomNavigationBar: CupertinoTabBar(
-              onTap: navigationTapped,
-              backgroundColor: mobileBackgroundColor,
-              items: [
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.home,
-                    color: _page == 0 ? primaryColor : secondaryColor,
-                    size: 35,
+            bottomNavigationBar: SizedBox(
+              height: 100,
+              child: CupertinoTabBar(
+                onTap: navigationTapped,
+                backgroundColor: mobileBackgroundColor,
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.home,
+                      color: _page == 0 ? primaryColor : secondaryColor,
+                      size: 35,
+                    ),
+                    label: "",
+                    backgroundColor: primaryColor,
                   ),
-                  label: "",
-                  backgroundColor: primaryColor,
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.search,
-                    color: _page == 1 ? primaryColor : secondaryColor,
-                    size: 35,
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.search,
+                      color: _page == 1 ? primaryColor : secondaryColor,
+                      size: 35,
+                    ),
+                    label: "",
+                    backgroundColor: primaryColor,
                   ),
-                  label: "",
-                  backgroundColor: primaryColor,
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.add_circle,
-                    color: _page == 2 ? primaryColor : secondaryColor,
-                    size: 35,
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.add_circle,
+                      color: _page == 2 ? primaryColor : secondaryColor,
+                      size: 35,
+                    ),
+                    label: "",
+                    backgroundColor: primaryColor,
                   ),
-                  label: "",
-                  backgroundColor: primaryColor,
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.favorite,
-                    color: _page == 3 ? primaryColor : secondaryColor,
-                    size: 35,
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.favorite,
+                      color: _page == 3 ? primaryColor : secondaryColor,
+                      size: 35,
+                    ),
+                    label: "",
+                    backgroundColor: primaryColor,
                   ),
-                  label: "",
-                  backgroundColor: primaryColor,
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.person,
-                    color: _page == 4 ? primaryColor : secondaryColor,
-                    size: 35,
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.person,
+                      color: _page == 4 ? primaryColor : secondaryColor,
+                      size: 35,
+                    ),
+                    label: "",
+                    backgroundColor: primaryColor,
                   ),
-                  label: "",
-                  backgroundColor: primaryColor,
-                ),
-              ],
+                ],
+              ),
             ),
           );
   }

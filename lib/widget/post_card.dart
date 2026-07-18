@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_clone/constants/app_routes.dart';
 import 'package:insta_clone/model/post_model.dart';
 import 'package:insta_clone/model/user_model.dart';
 import 'package:insta_clone/provider/user_provider.dart';
@@ -7,6 +9,8 @@ import 'package:insta_clone/utils/colors.dart';
 import 'package:insta_clone/widget/like_animation.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
+import '../utils/utils.dart';
 
 class PostCard extends StatefulWidget {
   PostModel postModel;
@@ -20,11 +24,17 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   bool isLikeAnimating = false;
 
+  Stream<QuerySnapshot> getCommentCount() {
+    return FirebaseFirestore.instance
+        .collection("posts")
+        .doc(widget.postModel.postId)
+        .collection("comments")
+        .snapshots();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final UserModel? user = context
-        .watch<UserProvider>()
-        .getUser;
+    final UserModel? user = context.watch<UserProvider>().getUser;
     return Container(
       color: mobileBackgroundColor,
       padding: EdgeInsets.symmetric(vertical: 10),
@@ -40,7 +50,7 @@ class _PostCardState extends State<PostCard> {
                 CircleAvatar(
                   radius: 16,
                   backgroundImage:
-                  NetworkImage(widget.postModel.profImage) as ImageProvider,
+                      NetworkImage(widget.postModel.profImage) as ImageProvider,
                 ),
                 Expanded(
                   child: Padding(
@@ -64,28 +74,26 @@ class _PostCardState extends State<PostCard> {
                   onPressed: () {
                     showDialog(
                       context: context,
-                      builder: (context) =>
-                          Dialog(
-                            child: ListView(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              shrinkWrap: true,
-                              children: ["Delete"]
-                                  .map(
-                                    (e) =>
-                                    InkWell(
-                                      onTap: () {},
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: 12,
-                                          horizontal: 16,
-                                        ),
-                                        child: Text(e),
-                                      ),
+                      builder: (context) => Dialog(
+                        child: ListView(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shrinkWrap: true,
+                          children: ["Delete"]
+                              .map(
+                                (e) => InkWell(
+                                  onTap: () {},
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 16,
                                     ),
+                                    child: Text(e),
+                                  ),
+                                ),
                               )
-                                  .toList(),
-                            ),
-                          ),
+                              .toList(),
+                        ),
+                      ),
                     );
                   },
                   icon: const Icon(Icons.more_vert),
@@ -108,10 +116,7 @@ class _PostCardState extends State<PostCard> {
               alignment: Alignment.center,
               children: [
                 SizedBox(
-                  height: MediaQuery
-                      .of(context)
-                      .size
-                      .height * 0.35,
+                  height: MediaQuery.of(context).size.height * 0.35,
                   width: double.infinity,
                   child: Image.network(
                     widget.postModel.postUrl,
@@ -132,7 +137,7 @@ class _PostCardState extends State<PostCard> {
                     child: const Icon(
                       Icons.favorite,
                       size: 100,
-                      color: Colors.white,
+                      color: Colors.pinkAccent,
                     ),
                   ),
                 ),
@@ -152,25 +157,41 @@ class _PostCardState extends State<PostCard> {
                       likes: widget.postModel.likes,
                     );
                   },
-                  icon: widget.postModel.likes.contains(user.uid)?Icon(
-                    Icons.favorite,
-                    color: Colors.red,
-                    size: 30,
-                  ):Icon(
-                    Icons.favorite_border,
-                    size: 30,
-                  )
+                  icon: widget.postModel.likes.contains(user.uid)
+                      ? Icon(Icons.favorite, color: Colors.red, size: 30)
+                      : Icon(Icons.favorite_border, size: 30),
                 ),
               ),
               Row(
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.comment,
+                      arguments: widget.postModel,
+                    ),
                     icon: Icon(Icons.comment_outlined),
                   ),
-                  Text(
-                    "43",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  StreamBuilder(
+                    stream: getCommentCount(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Text(
+                          "0",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      }
+                      return Text(
+                        "${snapshot.data!.docs.length}",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

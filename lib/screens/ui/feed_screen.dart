@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:insta_clone/model/post_model.dart';
-import 'package:insta_clone/repository/main_repository.dart';
+import 'package:insta_clone/repository/firestore_methods.dart';
 import 'package:insta_clone/widget/post_card.dart';
 
 import '../../utils/colors.dart';
@@ -27,7 +27,7 @@ class FeedScreen extends StatelessWidget {
         ],
       ),
       body: StreamBuilder(
-        stream: FirebaseRepository().getAllPosts(),
+        stream: FireStoreMethods().getAllPosts(),
         builder: (context, snapShot) {
           if (snapShot.connectionState == ConnectionState.waiting) {
             return Center(

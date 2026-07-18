@@ -5,6 +5,7 @@ import '../responsive/moile_screen_layout.dart';
 import '../responsive/responsive_layout_screen.dart';
 import '../responsive/web_screen_layout.dart';
 import '../screens/on_boarding/login_page.dart';
+import '../screens/ui/comment_screen.dart';
 import '../screens/ui/feed_screen.dart';
 class AppRoutes {
   static const String loginScreen="/login";
@@ -12,7 +13,7 @@ class AppRoutes {
   static const String homePage="/home";
   static const String addPost="/add_post";
   static const String feed="/feed";
-
+  static const String comment="/comment";
 
   static Map<String,WidgetBuilder>appRoutes()=>{
     loginScreen:(context)=>LoginScreen(),
@@ -23,5 +24,6 @@ class AppRoutes {
     ),
     addPost:(context)=>AddPostScreen(),
     feed:(context)=>FeedScreen(),
+    comment:(context)=>CommentScreen(),
   };
 }
