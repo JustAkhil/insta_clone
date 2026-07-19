@@ -2,10 +2,14 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:insta_clone/model/comment_model.dart';
 import 'package:insta_clone/model/post_model.dart';
+import 'package:insta_clone/repository/auth_method.dart';
 import 'package:insta_clone/repository/storage_method.dart';
 import 'package:uuid/uuid.dart';
+
+import '../model/user_model.dart';
 
 class FireStoreMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -112,4 +116,77 @@ class FireStoreMethods {
         .orderBy("datePublished", descending: true)
         .snapshots();
   }
+
+  Future<String> deletingPost({
+    required String postId,
+    required String postUrl,
+  }) async {
+    String res = "Some error occurred";
+    try {
+      await StorageMethod().deleteImageFromStorage(postUrl);
+      await _firestore.collection("posts").doc(postId).delete();
+      res = "success";
+    } catch (e) {
+      res = e.toString();
+    }
+    return res;
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> searchUserByUserName({
+    required String text,
+  }) {
+    String searchText = text.toLowerCase();
+    return _firestore
+        .collection("users")
+        .where("username_lowercase", isGreaterThanOrEqualTo: searchText)
+        .where("username_lowercase", isLessThanOrEqualTo: searchText + '\uf8ff')
+        .snapshots();
+  }
+
+  Future<QuerySnapshot<Map<String, dynamic>>> getPostForSearchScreen() async {
+    return await _firestore.collection("posts").get();
+  }
+
+  Future<QuerySnapshot<Map<String, dynamic>>> getUserPost({
+    required String uid,
+  }) async {
+    return await _firestore
+        .collection("posts")
+        .where("uid", isEqualTo: uid)
+        .get();
+  }
+
+  Future<void> followUser({
+    required String uid,
+    required String followId,
+  }) async {
+    try {
+      if (uid == followId) return;
+
+      DocumentSnapshot snap =
+          await _firestore.collection("users").doc(uid).get();
+      List following = (snap.data()! as dynamic)["following"] ?? [];
+
+      if (following.contains(followId)) {
+        // Unfollow
+        await _firestore.collection("users").doc(followId).update({
+          "followers": FieldValue.arrayRemove([uid])
+        });
+        await _firestore.collection("users").doc(uid).update({
+          "following": FieldValue.arrayRemove([followId])
+        });
+      } else {
+        // Follow
+        await _firestore.collection("users").doc(followId).update({
+          "followers": FieldValue.arrayUnion([uid])
+        });
+        await _firestore.collection("users").doc(uid).update({
+          "following": FieldValue.arrayUnion([followId])
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
 }

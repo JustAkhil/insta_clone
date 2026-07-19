@@ -26,44 +26,92 @@ class _AddPostScreenState extends State<AddPostScreen> {
     return showDialog(
       context: context,
       builder: (context) {
-        return SimpleDialog(
-          title: Text(
-            "Create a post",
-            style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
+        return Dialog(
+          backgroundColor: mobileSearchColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          children: [
-            SimpleDialogOption(
-              padding: EdgeInsets.all(20),
-              child: const Text("Take a Photo"),
-              onPressed: () async {
-                Navigator.pop(context);
-                Uint8List file = await pickImage(source: ImageSource.camera);
-                setState(() {
-                  _file = file;
-                });
-              },
+          child: Container(
+            width: 200,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Text(
+                    "Create a post",
+                    style: TextStyle(
+                      color: primaryColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const Divider(color: secondaryColor, height: 1),
+                _buildDialogItem(
+                  text: "Take a Photo",
+                  onTap: () async {
+                    Navigator.pop(context);
+                    Uint8List? file =
+                        await pickImage(source: ImageSource.camera);
+                    if (file != null) {
+                      setState(() {
+                        _file = file;
+                      });
+                    }
+                  },
+                ),
+                const Divider(color: secondaryColor, height: 1),
+                _buildDialogItem(
+                  text: "Choose from Gallery",
+                  onTap: () async {
+                    Navigator.pop(context);
+                    Uint8List? file =
+                        await pickImage(source: ImageSource.gallery);
+                    if (file != null) {
+                      setState(() {
+                        _file = file;
+                      });
+                    }
+                  },
+                ),
+                const Divider(color: secondaryColor, height: 1),
+                _buildDialogItem(
+                  text: "Cancel",
+                  textColor: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  onTap: () => Navigator.pop(context),
+                ),
+              ],
             ),
-            SimpleDialogOption(
-              padding: EdgeInsets.all(20),
-              child: const Text("Choose from Gallery"),
-              onPressed: () async {
-                Navigator.pop(context);
-                Uint8List file = await pickImage(source: ImageSource.gallery);
-                setState(() {
-                  _file = file;
-                });
-              },
-            ),
-            SimpleDialogOption(
-              padding: EdgeInsets.all(20),
-              child: const Text("Cancel"),
-              onPressed: () async {
-                Navigator.pop(context);
-              },
-            ),
-          ],
+          ),
         );
       },
+    );
+  }
+
+  Widget _buildDialogItem({
+    required String text,
+    required VoidCallback onTap,
+    Color textColor = primaryColor,
+    FontWeight fontWeight = FontWeight.normal,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        alignment: Alignment.center,
+        child: Text(
+          text,
+          style: TextStyle(
+            color: textColor,
+            fontSize: 16,
+            fontWeight: fontWeight,
+          ),
+        ),
+      ),
     );
   }
 
@@ -72,6 +120,15 @@ class _AddPostScreenState extends State<AddPostScreen> {
     required String username,
     required String profImage,
   }) async {
+    if (_file == null) {
+      showSnackBar(context, "Please select an image first");
+      return;
+    }
+    if (_descriptionController.text.trim().isEmpty) {
+      showSnackBar(context, "Please enter a caption");
+      return;
+    }
+
     try {
       setState(() {
         _isLoading = true;
@@ -88,21 +145,22 @@ class _AddPostScreenState extends State<AddPostScreen> {
           _isLoading = false;
         });
         showSnackBar(context, "Posted");
+        clearImage();
       } else {
         setState(() {
           _isLoading = false;
         });
         showSnackBar(context, res);
-        clearImage();
       }
     } catch (e) {
       showSnackBar(context, e.toString());
     }
   }
 
-  void  clearImage() {
+  void clearImage() {
     setState(() {
       _file = null;
+      _descriptionController.clear();
     });
   }
 
@@ -117,21 +175,38 @@ class _AddPostScreenState extends State<AddPostScreen> {
     final UserModel? userModel = context.watch<UserProvider>().getUser;
     return _file == null
         ? Center(
-            child: IconButton(
-              onPressed: () => _selectImage(context),
-              icon: Icon(Icons.upload, size: 50),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.upload, size: 60, color: secondaryColor),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () => _selectImage(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: blueColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "Select Photo",
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
             ),
           )
         : Scaffold(
             appBar: AppBar(
               backgroundColor: mobileBackgroundColor,
-              title: Text(
-                "Post To",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              title: const Text(
+                "New Post",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+              centerTitle: false,
               leading: IconButton(
                 onPressed: clearImage,
-                icon: Icon(Icons.arrow_back_ios_new),
+                icon: const Icon(Icons.arrow_back),
               ),
               actions: [
                 TextButton(
@@ -140,11 +215,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     username: userModel.username,
                     profImage: userModel.photoUrl,
                   ),
-                  child: Text(
-                    "Post",
+                  child: const Text(
+                    "Share",
                     style: TextStyle(
-                      color: Colors.blueAccent,
-                      fontSize: 17,
+                      color: blueColor,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -153,56 +228,43 @@ class _AddPostScreenState extends State<AddPostScreen> {
             ),
             body: Column(
               children: [
-                _isLoading
-                    ? const LinearProgressIndicator(
-                  backgroundColor: Colors.white,
-                  color: Colors.pink,
-                )
-                    : Padding(padding: EdgeInsets.only(top: 0)),
-                const Divider(
-                  color: mobileBackgroundColor,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundImage: NetworkImage(userModel!.photoUrl),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.4,
-                      child: TextField(
-                        autofocus: true,
-                        cursorColor: Colors.blueAccent,
-                        cursorWidth: 3,
-                        controller: _descriptionController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: "Write a caption...",
-                        ),
-                        maxLines: 8,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 60,
-                      width: 60,
-                      child: AspectRatio(
-                        aspectRatio: 487 / 451,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: MemoryImage(_file!),
-                              fit: BoxFit.fill,
-                              alignment: FractionalOffset.topCenter,
-                            ),
+                if (_isLoading)
+                  const LinearProgressIndicator(
+                    backgroundColor: Colors.white,
+                    color: blueColor,
+                  ),
+                Expanded(
+                  child: Center(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Big Circular Image Preview
+                          CircleAvatar(
+                            radius: MediaQuery.of(context).size.width * 0.3,
+                            backgroundImage: MemoryImage(_file!),
+                            backgroundColor: mobileSearchColor,
                           ),
-                        ),
+                          const SizedBox(height: 32),
+                          // Description TextField
+                          TextField(
+                            controller: _descriptionController,
+                            cursorColor: blueColor,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 16),
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Write a caption...",
+                              hintStyle: TextStyle(color: secondaryColor),
+                            ),
+                            maxLines: 4,
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-                Divider(),
               ],
             ),
           );

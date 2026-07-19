@@ -16,9 +16,11 @@ class UserModel {
     required this.followers,
     required this.following,
   });
+
   Map<String, dynamic> toMap() {
     return {
       "username": username,
+      "username_lowercase": username.toLowerCase(),
       "uid": uid,
       "email": email,
       "bio": bio,
@@ -27,6 +29,7 @@ class UserModel {
       "following": following,
     };
   }
+
   factory UserModel.fromMap(Map<String, dynamic> data) {
     return UserModel(
       username: data['username'] ?? '',

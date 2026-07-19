@@ -31,9 +31,10 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: mobileBackgroundColor,
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 32),
+          padding: const EdgeInsets.symmetric(horizontal: 32),
           width: double.infinity,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -44,80 +45,130 @@ class _LoginScreenState extends State<LoginScreen> {
                 color: primaryColor,
                 height: 64,
               ),
-              SizedBox(height: 64),
+              const SizedBox(height: 64),
               TextFieldInput(
                 textEditingController: emailController,
-                hintText: "Enter your email",
+                hintText: "Phone number, username, or email",
                 textInputType: TextInputType.emailAddress,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 16),
               TextFieldInput(
                 textEditingController: passwordController,
-                hintText: "Enter your password",
+                hintText: "Password",
                 textInputType: TextInputType.text,
                 isPass: true,
               ),
-              SizedBox(height: 24),
-              Container(
-                width: double.infinity,
-                decoration: ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(4)),
+              const SizedBox(height: 24),
+              InkWell(
+                onTap: loginUser,
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: const ShapeDecoration(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                    ),
+                    color: blueColor,
                   ),
-                  color: blueColor,
-                ),
-                child: TextButton(
-                  onPressed: loginUser,
                   child: _isLoading
-                      ? const Center(
-                          child: CircularProgressIndicator(color: Colors.white),
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: primaryColor,
+                            strokeWidth: 2,
+                          ),
                         )
-                      : Text(
-                          "Login",
+                      : const Text(
+                          "Log in",
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                            fontSize: 14,
                           ),
                         ),
                 ),
               ),
-              SizedBox(height: 2),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  "Forgotten password?",
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-              ),
-              Flexible(child: Container(), flex: 2),
+              const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Text(
-                      "Don't have an account?",
-                      style: TextStyle(fontSize: 18),
-                    ),
+                  const Text(
+                    "Forgot your login details? ",
+                    style: TextStyle(fontSize: 12, color: secondaryColor),
                   ),
-                  SizedBox(width: 10),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacementNamed(context, AppRoutes.signUp);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 8),
-                      child: Text(
-                        "Sign up",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 19,
-                        ),
+                    onTap: () {},
+                    child: const Text(
+                      "Get help logging in.",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: primaryColor,
                       ),
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(child: Divider(color: Colors.grey.withOpacity(0.5))),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Text(
+                      "OR",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: secondaryColor,
+                      ),
+                    ),
+                  ),
+                  Expanded(child: Divider(color: Colors.grey.withOpacity(0.5))),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.facebook, color: blueColor),
+                  const SizedBox(width: 8),
+                  const Text(
+                    "Log in with Facebook",
+                    style: TextStyle(
+                      color: blueColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Flexible(child: Container(), flex: 2),
+              const Divider(color: Colors.grey),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Don't have an account? ",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, AppRoutes.signUp);
+                      },
+                      child: const Text(
+                        "Sign up",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: blueColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -127,26 +178,30 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   loginUser() async {
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      showSnackBar(context, "Please fill in all fields");
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
+
     String res = await AuthMethod().loginUser(
-      email: emailController.text,
-      pass: passwordController.text,
+      email: emailController.text.trim(),
+      pass: passwordController.text.trim(),
     );
-    if (res == "success") {
+
+    if (mounted) {
       setState(() {
         _isLoading = false;
       });
-      Navigator.pushReplacementNamed(
-        context,AppRoutes.homePage
-      );
-      showSnackBar(context, res);
-    } else {
-      setState(() {
-        _isLoading = false;
-      });
-      showSnackBar(context, res);
+
+      if (res == "success") {
+        Navigator.pushReplacementNamed(context, AppRoutes.homePage);
+      } else {
+        showSnackBar(context, res);
+      }
     }
   }
 }

@@ -37,70 +37,109 @@ class _PostCardState extends State<PostCard> {
     final UserModel? user = context.watch<UserProvider>().getUser;
     return Container(
       color: mobileBackgroundColor,
-      padding: EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         children: [
+          // Header Section
           Container(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: 4,
+              vertical: 8,
             ).copyWith(right: 0),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundImage:
-                      NetworkImage(widget.postModel.profImage) as ImageProvider,
+                Container(
+                  padding: const EdgeInsets.all(1.5),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [Colors.orange, Colors.pink, Colors.purple],
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: mobileBackgroundColor,
+                    child: CircleAvatar(
+                      radius: 16,
+                      backgroundImage: NetworkImage(widget.postModel.profImage),
+                    ),
+                  ),
                 ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(left: 8),
+                    padding: const EdgeInsets.only(left: 12),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           widget.postModel.username,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                            fontSize: 16,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => Dialog(
-                        child: ListView(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          shrinkWrap: true,
-                          children: ["Delete"]
-                              .map(
-                                (e) => InkWell(
-                                  onTap: () {},
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: 12,
-                                      horizontal: 16,
-                                    ),
-                                    child: Text(e),
+                if (user?.uid == widget.postModel.uid)
+                  IconButton(
+                    onPressed: () {
+                      showDialog(
+                        useRootNavigator: false,
+                        context: context,
+                        builder: (context) {
+                          return Dialog(
+                            backgroundColor: mobileSearchColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Container(
+                              width: 200,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _buildDialogItem(
+                                    context: context,
+                                    text: "Delete",
+                                    textColor: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    onTap: () async {
+                                      Navigator.pop(context);
+                                      String res = await FireStoreMethods()
+                                          .deletingPost(
+                                        postId: widget.postModel.postId,
+                                        postUrl: widget.postModel.postUrl,
+                                      );
+                                      if (context.mounted) {
+                                        showSnackBar(context,
+                                            res == "success" ? "Post Deleted" : res);
+                                      }
+                                    },
                                   ),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.more_vert),
-                ),
+                                  const Divider(color: secondaryColor, height: 1),
+                                  _buildDialogItem(
+                                    context: context,
+                                    text: "Cancel",
+                                    onTap: () => Navigator.pop(context),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.more_vert, size: 24),
+                  ),
               ],
             ),
           ),
+          // Image Section
           GestureDetector(
             onDoubleTap: () {
               FireStoreMethods().likePosts(
@@ -116,7 +155,7 @@ class _PostCardState extends State<PostCard> {
               alignment: Alignment.center,
               children: [
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.35,
+                  height: MediaQuery.of(context).size.height * 0.45,
                   width: double.infinity,
                   child: Image.network(
                     widget.postModel.postUrl,
@@ -144,6 +183,7 @@ class _PostCardState extends State<PostCard> {
               ],
             ),
           ),
+          // Action Buttons Section
           Row(
             children: [
               LikeAnimation(
@@ -158,111 +198,123 @@ class _PostCardState extends State<PostCard> {
                     );
                   },
                   icon: widget.postModel.likes.contains(user.uid)
-                      ? Icon(Icons.favorite, color: Colors.red, size: 30)
-                      : Icon(Icons.favorite_border, size: 30),
+                      ? const Icon(Icons.favorite, color: Colors.red, size: 28)
+                      : const Icon(Icons.favorite_border, size: 28),
                 ),
               ),
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.pushNamed(
-                      context,
-                      AppRoutes.comment,
-                      arguments: widget.postModel,
-                    ),
-                    icon: Icon(Icons.comment_outlined),
-                  ),
-                  StreamBuilder(
-                    stream: getCommentCount(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Text(
-                          "0",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      }
-                      return Text(
-                        "${snapshot.data!.docs.length}",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              IconButton(onPressed: () {}, icon: Icon(Icons.send)),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.bookmark_border),
-                  ),
+              IconButton(
+                onPressed: () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.comment,
+                  arguments: widget.postModel,
                 ),
+                icon: const Icon(Icons.chat_bubble_outline, size: 26),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.send_outlined, size: 26),
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.bookmark_border, size: 28),
               ),
             ],
           ),
+          // Description & Comments Section
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "${widget.postModel.likes.length} likes",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 4),
                   child: RichText(
                     text: TextSpan(
-                      style: TextStyle(color: primaryColor),
+                      style: const TextStyle(color: primaryColor, fontSize: 14),
                       children: [
                         TextSpan(
                           text: widget.postModel.username,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
-                          text: "   ${widget.postModel.description}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
+                          text: "  ${widget.postModel.description}",
                         ),
                       ],
                     ),
                   ),
                 ),
                 InkWell(
-                  onTap: () {},
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    AppRoutes.comment,
+                    arguments: widget.postModel,
+                  ),
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 4),
-                    child: Text(
-                      "View all 1,231 comments",
-                      style: TextStyle(fontSize: 16, color: secondaryColor),
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: StreamBuilder(
+                      stream: getCommentCount(),
+                      builder: (context, snapshot) {
+                        int count = snapshot.hasData ? snapshot.data!.docs.length : 0;
+                        return Text(
+                          count > 0
+                              ? "View all $count comments"
+                              : "No comments yet",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: secondaryColor,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 4),
-                  child: Text(
-                    DateFormat.yMMMd().format(widget.postModel.datePublished),
-                    style: TextStyle(fontSize: 16, color: secondaryColor),
+                Text(
+                  DateFormat.yMMMd().format(widget.postModel.datePublished),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: secondaryColor,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDialogItem({
+    required BuildContext context,
+    required String text,
+    required VoidCallback onTap,
+    Color textColor = primaryColor,
+    FontWeight fontWeight = FontWeight.normal,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        alignment: Alignment.center,
+        child: Text(
+          text,
+          style: TextStyle(
+            color: textColor,
+            fontSize: 16,
+            fontWeight: fontWeight,
+          ),
+        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_clone/model/user_model.dart';
@@ -5,7 +6,12 @@ import 'package:insta_clone/provider/user_provider.dart';
 import 'package:insta_clone/screens/ui/add_post.dart';
 import 'package:insta_clone/utils/colors.dart';
 import 'package:insta_clone/utils/global_variable.dart';
+import 'package:insta_clone/widget/loader.dart';
 import 'package:provider/provider.dart';
+
+import '../screens/ui/feed_screen.dart';
+import '../screens/ui/profile_screen.dart';
+import '../screens/ui/search_screen.dart';
 
 class MobileScreenLayout extends StatefulWidget {
   const MobileScreenLayout({super.key});
@@ -21,8 +27,9 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
   @override
   void initState() {
     super.initState();
-    pageController=PageController();
+    pageController = PageController();
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -39,12 +46,11 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     UserModel? user = context.watch<UserProvider>().getUser;
     return user == null
-        ? const Center(child: CircularProgressIndicator())
+        ? const Loader()
         : Scaffold(
             body: PageView(
               physics: BouncingScrollPhysics(),

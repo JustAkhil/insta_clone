@@ -38,128 +38,133 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: mobileBackgroundColor,
       body: SafeArea(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 32),
-          width: double.infinity,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Flexible(child: Container(), flex: 2),
-              SvgPicture.asset(
-                "assets/ic_instagram.svg",
-                color: primaryColor,
-                height: 64,
-              ),
-              SizedBox(height: 24),
-              Stack(
-                children: [
-                  _image != null
-                      ? CircleAvatar(
-                          radius: 64,
-                          backgroundImage: MemoryImage(_image!),
-                        )
-                      : CircleAvatar(
-                          radius: 64,
-                          backgroundImage: NetworkImage(
-                            "https://i.sstatic.net/l60Hf.png",
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 64),
+                SvgPicture.asset(
+                  "assets/ic_instagram.svg",
+                  color: primaryColor,
+                  height: 64,
+                ),
+                const SizedBox(height: 32),
+                Stack(
+                  children: [
+                    _image != null
+                        ? CircleAvatar(
+                            radius: 64,
+                            backgroundImage: MemoryImage(_image!),
+                          )
+                        : const CircleAvatar(
+                            radius: 64,
+                            backgroundImage: NetworkImage(
+                              "https://i.sstatic.net/l60Hf.png",
+                            ),
                           ),
+                    Positioned(
+                      bottom: -10,
+                      left: 80,
+                      child: IconButton(
+                        onPressed: selectImage,
+                        icon: const Icon(
+                          Icons.add_a_photo,
+                          color: Colors.white,
+                          size: 25,
                         ),
-                  Positioned(
-                    bottom: -10,
-                    left: 80,
-                    child: IconButton(
-                      onPressed: selectImage,
-                      icon: Icon(
-                        Icons.add_a_photo,
-                        color: Colors.white,
-                        size: 25,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 24),
-              TextFieldInput(
-                textEditingController: userNameController,
-                hintText: "Enter your username",
-                textInputType: TextInputType.name,
-              ),
-              SizedBox(height: 24),
-              TextFieldInput(
-                textEditingController: emailController,
-                hintText: "Enter your email",
-                textInputType: TextInputType.emailAddress,
-              ),
-              SizedBox(height: 24),
-              TextFieldInput(
-                isPass: isPassHidden,
-                textEditingController: passwordController,
-                hintText: "Enter your password",
-                textInputType: TextInputType.text,
-              ),
-              SizedBox(height: 24),
-              TextFieldInput(
-                textEditingController: bioController,
-                hintText: "Enter your bio",
-                textInputType: TextInputType.text,
-              ),
-              SizedBox(height: 24),
-              Container(
-                width: double.infinity,
-                decoration: ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(4)),
-                  ),
-                  color: blueColor,
+                  ],
                 ),
-                child: TextButton(
-                  onPressed: signUp,
-                  child: _isLoading
-                      ? const Center(
-                          child: CircularProgressIndicator(color: Colors.white),
-                        )
-                      : Text(
-                          "Sign up",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
+                const SizedBox(height: 32),
+                TextFieldInput(
+                  textEditingController: userNameController,
+                  hintText: "Username",
+                  textInputType: TextInputType.name,
                 ),
-              ),
-              SizedBox(height: 2),
-              Flexible(flex: 2, child: Container()),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Text(
-                      "Already have an account?",
-                      style: TextStyle(fontSize: 18),
+                const SizedBox(height: 16),
+                TextFieldInput(
+                  textEditingController: emailController,
+                  hintText: "Email",
+                  textInputType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 16),
+                TextFieldInput(
+                  isPass: true,
+                  textEditingController: passwordController,
+                  hintText: "Password",
+                  textInputType: TextInputType.text,
+                ),
+                const SizedBox(height: 16),
+                TextFieldInput(
+                  textEditingController: bioController,
+                  hintText: "Bio",
+                  textInputType: TextInputType.text,
+                ),
+                const SizedBox(height: 24),
+                InkWell(
+                  onTap: signUp,
+                  child: Container(
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: const ShapeDecoration(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                      ),
+                      color: blueColor,
                     ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: primaryColor,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            "Sign up",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
                   ),
-                  SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacementNamed(context, AppRoutes.loginScreen);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 8),
-                      child: Text(
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Already have an account? ",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacementNamed(
+                            context, AppRoutes.loginScreen);
+                      },
+                      child: const Text(
                         "Log in",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 19,
+                          fontSize: 14,
+                          color: blueColor,
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
         ),
       ),
@@ -174,16 +179,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> signUp() async {
+    if (userNameController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        bioController.text.isEmpty) {
+      showSnackBar(context, "Please fill in all fields");
+      return;
+    }
+
+    if (_image == null) {
+      showSnackBar(context, "Please select an image");
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
-    if (_image == null) {
-      showSnackBar(context, "Please select an image");
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
+
     String res = await AuthMethod().signUpUser(
       userName: userNameController.text.trim(),
       email: emailController.text.trim(),
@@ -191,14 +203,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
       bio: bioController.text.trim(),
       file: _image!,
     );
-    setState(() {
-      _isLoading = false;
-    });
-    if (res == 'success') {
-      Navigator.pushReplacementNamed(context, AppRoutes.loginScreen);
-      showSnackBar(context, res);
-    }else{
-      showSnackBar(context, res);
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (res == 'success') {
+        showSnackBar(context, "Account created successfully! Please login.");
+        Navigator.pushReplacementNamed(context, AppRoutes.loginScreen);
+      } else {
+        showSnackBar(context, res);
+      }
     }
   }
 }
