@@ -18,7 +18,7 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   Uint8List? _image;
-  bool isPassHidden = false;
+  bool isPassHidden = true;
   bool _isLoading = false;
 
   @override
@@ -95,10 +95,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextFieldInput(
-                  isPass: true,
+                  isPass: isPassHidden,
                   textEditingController: passwordController,
                   hintText: "Password",
                   textInputType: TextInputType.text,
+                  icon: IconButton(onPressed: (){
+                    setState(() {
+                      isPassHidden = !isPassHidden;
+                    });
+                  }, icon:Icon(isPassHidden?Icons.visibility_off:Icons.visibility)),
                 ),
                 const SizedBox(height: 16),
                 TextFieldInput(
@@ -149,7 +154,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     GestureDetector(
                       onTap: () {
                         Navigator.pushReplacementNamed(
-                            context, AppRoutes.loginScreen);
+                          context,
+                          AppRoutes.loginScreen,
+                        );
                       },
                       child: const Text(
                         "Log in",

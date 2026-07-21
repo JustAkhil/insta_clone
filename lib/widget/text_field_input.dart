@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../utils/colors.dart';
+
 class TextFieldInput extends StatelessWidget {
   final TextEditingController textEditingController;
+  final IconButton? icon;
   final bool isPass;
   final String hintText;
   final TextInputType textInputType;
 
   const TextFieldInput({
     required this.textEditingController,
-    this.isPass=false,
+    this.isPass = false,
     required this.hintText,
     required this.textInputType,
+    this.icon
   });
 
   @override
@@ -21,6 +24,7 @@ class TextFieldInput extends StatelessWidget {
     );
     return TextField(
       cursorColor: blueColor,
+
       keyboardType: textInputType,
       controller: textEditingController,
       obscureText: isPass,
@@ -31,6 +35,7 @@ class TextFieldInput extends StatelessWidget {
         enabledBorder: inputBorder,
         filled: true,
         fillColor: mobileSearchColor,
+        suffixIcon: icon,
 
         contentPadding: EdgeInsets.all(8),
       ),

@@ -53,10 +53,13 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
         ? const Loader()
         : Scaffold(
             body: PageView(
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               controller: pageController,
               onPageChanged: onPageChange,
-              children: navPages,
+              children: [
+                ...navPages,
+                ProfileScreen(uid: user.uid),
+              ],
             ),
             bottomNavigationBar: SizedBox(
               height: 100,

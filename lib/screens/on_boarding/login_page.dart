@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:insta_clone/constants/app_routes.dart';
 import 'package:insta_clone/repository/auth_method.dart';
-import 'package:insta_clone/responsive/moile_screen_layout.dart';
-import 'package:insta_clone/responsive/responsive_layout_screen.dart';
-import 'package:insta_clone/responsive/web_screen_layout.dart';
 import 'package:insta_clone/utils/utils.dart';
 
 import '../../utils/colors.dart';
@@ -16,6 +13,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool isPassHidden = true;
+
   @override
   void dispose() {
     super.dispose();
@@ -56,7 +55,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 textEditingController: passwordController,
                 hintText: "Password",
                 textInputType: TextInputType.text,
-                isPass: true,
+                isPass: isPassHidden,
+                icon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isPassHidden = !isPassHidden;
+                    });
+                  },
+                  icon: Icon(
+                    isPassHidden ? Icons.visibility_off : Icons.visibility,
+                  ),
+                ),
               ),
               const SizedBox(height: 24),
               InkWell(
@@ -156,7 +165,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushReplacementNamed(context, AppRoutes.signUp);
+                        Navigator.pushReplacementNamed(
+                          context,
+                          AppRoutes.signUp,
+                        );
                       },
                       child: const Text(
                         "Sign up",

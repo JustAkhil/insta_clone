@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_clone/constants/app_routes.dart';
 import 'package:insta_clone/model/post_model.dart';
 import 'package:insta_clone/model/user_model.dart';
 import 'package:insta_clone/provider/user_provider.dart';
 import 'package:insta_clone/repository/firestore_methods.dart';
+import 'package:insta_clone/screens/ui/profile_screen.dart';
 import 'package:insta_clone/utils/colors.dart';
 import 'package:insta_clone/widget/like_animation.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +25,19 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   bool isLikeAnimating = false;
+  late TapGestureRecognizer _usernameRecognizer;
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameRecognizer = TapGestureRecognizer();
+  }
+
+  @override
+  void dispose() {
+    _usernameRecognizer.dispose();
+    super.dispose();
+  }
 
   Stream<QuerySnapshot> getCommentCount() {
     return FirebaseFirestore.instance
@@ -35,6 +50,11 @@ class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
     final UserModel? user = context.watch<UserProvider>().getUser;
+    _usernameRecognizer.onTap = () => Navigator.pushNamed(
+          context,
+          AppRoutes.profile,
+          arguments: widget.postModel.uid,
+        );
     return Container(
       color: mobileBackgroundColor,
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -48,43 +68,47 @@ class _PostCardState extends State<PostCard> {
             ).copyWith(right: 0),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(1.5),
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [Colors.orange, Colors.pink, Colors.purple],
-                      begin: Alignment.topRight,
-                      end: Alignment.bottomLeft,
-                    ),
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    AppRoutes.profile,
+                    arguments: widget.postModel.uid,
                   ),
-                  child: CircleAvatar(
-                    radius: 18,
-                    backgroundColor: mobileBackgroundColor,
-                    child: CircleAvatar(
-                      radius: 16,
-                      backgroundImage: NetworkImage(widget.postModel.profImage),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 12),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(1.5),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [Colors.orange, Colors.pink, Colors.purple],
+                            begin: Alignment.topRight,
+                            end: Alignment.bottomLeft,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: mobileBackgroundColor,
+                          child: CircleAvatar(
+                            radius: 16,
+                            backgroundImage: NetworkImage(widget.postModel.profImage),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12),
+                        child: Text(
                           widget.postModel.username,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
+                const Spacer(),
                 if (user?.uid == widget.postModel.uid)
                   IconButton(
                     onPressed: () {
@@ -245,6 +269,7 @@ class _PostCardState extends State<PostCard> {
                         TextSpan(
                           text: widget.postModel.username,
                           style: const TextStyle(fontWeight: FontWeight.bold),
+                          recognizer: _usernameRecognizer,
                         ),
                         TextSpan(
                           text: "  ${widget.postModel.description}",

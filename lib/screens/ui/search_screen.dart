@@ -6,6 +6,8 @@ import 'package:insta_clone/screens/ui/profile_screen.dart';
 import 'package:insta_clone/utils/colors.dart';
 import 'package:insta_clone/widget/loader.dart';
 
+import '../../constants/app_routes.dart';
+
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -132,13 +134,10 @@ class SearchScreenState extends State<SearchScreen> {
               return InkWell(
                 borderRadius: BorderRadius.circular(14),
                 onTap: () {
-                  Navigator.push(
+                  Navigator.pushNamed(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => ProfileScreen(
-                        uid: data['uid'].toString(),
-                      ),
-                    ),
+                    AppRoutes.profile,
+                    arguments: data['uid'].toString(),
                   );
                 },
                 child: Container(

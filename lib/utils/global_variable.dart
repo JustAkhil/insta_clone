@@ -8,10 +8,9 @@ import '../screens/ui/search_screen.dart';
 
 const webScreenSize = 600;
 
-final navPages = [
+const navPages = [
   FeedScreen(),
   SearchScreen(),
   AddPostScreen(),
-  Text("LikeScreen"),
-  ProfileScreen(uid: FirebaseAuth.instance.currentUser!.uid,)
+  Center(child: Text("LikeScreen")),
 ];
